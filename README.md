@@ -145,7 +145,8 @@ index=botsv3 sourcetype=ms:o365:management Workload=OneDrive Operation=FileUploa
 
 The query revealed the upload of the file BRUCE BIRTHDAY HAPPY HOUR PICS.lnk to OneDrive. The associated user agent responsible for the upload was:
 
-```Mozilla/5.0 (X11; Linux i686; rv:19.1br) Gecko/20130508 Fedora/1.9.1-2.5.r3.0 NaenaraBrowser/3.5b4
+```
+Mozilla/5.0 (X11; Linux i686; rv:19.1br) Gecko/20130508 Fedora/1.9.1-2.5.r3.0 NaenaraBrowser/3.5b4
 ```
 
 ### Why the File Is Malicious
