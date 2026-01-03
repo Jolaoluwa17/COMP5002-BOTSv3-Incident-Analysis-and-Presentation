@@ -337,3 +337,44 @@ Process ID identified:
 Services listening on port 1337 are commonly associated with attacker backdoors and command-and-control infrastructure. Identifying the process ID allows SOC analysts to pivot into deeper investigation, including binary identification, parent process analysis, and persistence assessment.
 
 This activity reflects Tier 2 SOC investigation, where endpoint telemetry is correlated with known attacker tradecraft to assess compromise severity and guide escalation decisions.
+
+---
+
+### 4.8 MD5 of Network Scanner Downloaded to Fyodor’s Endpoint
+
+#### Investigation Approach
+
+To identify the file used to scan Frothly’s network, Sysmon telemetry was analysed on Fyodor’s endpoint (**FYODOR-L**). Sysmon records process execution events and includes file hash values (including MD5) in the `Hashes` field. The investigation focused on process creation events and pivoted on the unusual executable observed on the host.
+
+#### SPL Query Used
+
+```spl
+index=botsv3 sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" host="FYODOR-L"
+("<EventID>1</EventID>" OR EventCode=1 OR EventID=1)
+| rex field=_raw "Data Name='Image'>(?<Image>[^<]+)"
+| rex field=_raw "Data Name='Hashes'>(?<Hashes>[^<]+)"
+| search Image="*hdoor.exe*"
+| rex field=Hashes "MD5=(?<MD5>[A-Fa-f0-9]{32})"
+| table _time Image MD5 Hashes
+```
+
+#### Findings
+
+The Sysmon process execution event showed the scanner binary executed from:
+
+C:\Windows\Temp\hdoor.exe
+
+Sysmon recorded the following MD5 value for the file:
+
+MD5: 586EF56F4D8963DD546163AC31C865D7
+
+#### SOC Relevance
+
+Identifying the MD5 hash allows SOC analysts to confirm the exact binary used by the attacker, perform threat intelligence lookups, and hunt for the same file across other endpoints. This supports rapid scoping, detection tuning, and incident containment.
+
+## 5. Conclusion
+
+This investigation demonstrated a structured SOC-style analysis of a multi-stage attack using the BOTSv3 dataset and Splunk Enterprise. By correlating email, cloud, endpoint, and host-based telemetry, key attacker actions were identified, including malicious file delivery, living-off-the-land execution, account creation, privilege escalation, and backdoor activity.
+
+The findings highlight the importance of comprehensive logging, cross-source correlation, and analyst proficiency in SPL for effective detection and response. Overall, the investigation reflects real-world SOC workflows and reinforces the value of layered security monitoring in identifying and containing advanced threats.
+
